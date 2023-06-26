@@ -6,6 +6,7 @@
   "typings": "build/main/index.d.ts",
   "module": "build/module/index.js",
   "repository": "https://github.com/upbond/upbond-wagmi-connector",
+  "types": "build/main/index.d.ts",
   "license": "MIT",
   "keywords": [],
   "scripts": {

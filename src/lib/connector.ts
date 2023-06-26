@@ -39,26 +39,14 @@ export default class UpbondWagmiConnector extends Connector<
 
   upbondInitialParams = initialUpbondConfig;
 
-  network = {
-    host: 'mainnet',
-    chainId: 1,
-    networkName: 'Ethereum Mainnet',
-    blockExplorer: 'https://etherscan.io',
-    ticker: 'ETH',
-    tickerName: 'Ethereum',
-  };
-
-  chains: Chain[];
+  network = initialUpbondConfig.network;
 
   constructor(config: {
     chains: Chain[];
     options: Options;
     upbondInitialParams?: IUpbondEmbedParams;
   }) {
-    super({
-      options: config.options,
-      chains: config.chains,
-    });
+    super(config);
 
     const chainId = config.options.chainId ? config.options.chainId : 1;
     const host = config.options.host ? config.options.host : 'mainnet';
@@ -66,7 +54,6 @@ export default class UpbondWagmiConnector extends Connector<
     this.upbondInstance = new Upbond({});
     this.torusOptions = config.options;
     this.isConnected = false;
-    this.chains = config.chains;
 
     // set network according to chain details provided
     const chain = this.chains.find((x) => x.id === chainId);
@@ -114,7 +101,9 @@ export default class UpbondWagmiConnector extends Connector<
       if (provider.on) {
         provider.on('connect', this.onConnect);
         provider.on('accountsChanged', this.onAccountsChanged);
-        provider.on('chainChanged', this.onChainChanged);
+        provider.on('chainChanged', (res) =>
+          this.onChainChanged(res as string)
+        );
         provider.on('disconnect', this.onDisconnect);
       }
     }
@@ -138,8 +127,8 @@ export default class UpbondWagmiConnector extends Connector<
           // TODO: do anything with on connect emitter
         });
         provider.on('accountsChanged', this.onAccountsChanged);
-        provider.on('chainChanged', async (res: string) => {
-          this.onChainChanged(res);
+        provider.on('chainChanged', async (res) => {
+          this.onChainChanged(res as string);
         });
         provider.on('disconnect', this.onDisconnect);
       }
@@ -225,7 +214,7 @@ export default class UpbondWagmiConnector extends Connector<
   async getChainId(): Promise<number> {
     try {
       const provider = await this.getProvider();
-      if (!provider && this.network.chainId) {
+      if (!provider && this.network?.chainId) {
         return normalizeChainId(this.network.chainId);
       } else if (provider) {
         const chainId = await provider.request({ method: 'eth_chainId' });

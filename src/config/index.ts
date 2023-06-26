@@ -3,13 +3,13 @@ import { IUpbondEmbedParams } from '@upbond/upbond-embed';
 export const initialUpbondConfig = {
   buildEnv: 'local',
   network: {
-    host: 'matic',
-    chainId: 137,
-    networkName: 'Polygon',
-    blockExplorer: 'https://polygonscan.com/',
-    ticker: 'MATIC',
-    tickerName: 'MATIC',
-    rpcUrl: 'https://polygon-rpc.com',
+    host: 'mainnet',
+    chainId: 1,
+    networkName: 'Ethereum Mainnet',
+    blockExplorer: 'https://etherscan.io',
+    ticker: 'ETH',
+    tickerName: 'Ethereum',
+    rpcUrl: 'https://eth.llamarpc.com',
   },
   whiteLabel: {
     walletTheme: {
