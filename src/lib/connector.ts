@@ -135,7 +135,7 @@ export default class UpbondWagmiConnector extends Connector<
       const provider = this.upbondInstance.provider as UpbondInpageProvider;
       if (provider.on) {
         provider.on('connect', () => {
-          console.log(`Connected`);
+          // TODO: do anything with on connect emitter
         });
         provider.on('accountsChanged', this.onAccountsChanged);
         provider.on('chainChanged', async (res: string) => {
