@@ -1,1 +1,1 @@
-export * from './lib/connector';
+export { default } from './lib/connector';

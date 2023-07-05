@@ -1,7 +1,7 @@
-import { IUpbondEmbedParams } from '@upbond/upbond-embed';
+import { IUpbondEmbedParams, UPBOND_BUILD_ENV } from '@upbond/upbond-embed';
 
 export const initialUpbondConfig = {
-  buildEnv: 'local',
+  buildEnv: UPBOND_BUILD_ENV.PRODUCTION,
   network: {
     host: 'mainnet',
     chainId: 1,

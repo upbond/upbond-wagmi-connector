@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "rootDir": ".",
+    "rootDir": "src",
     "strict": false,
     "module": "esnext",
     "target": "es6",
@@ -9,12 +9,12 @@
     "esModuleInterop": true,
     "noImplicitThis": true,
     "declaration": true,
-    "declarationDir": "build/main/types",
+    "declarationDir": "build",
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "moduleResolution": "node",
-    "baseUrl": ".",
-    "outDir": "build/main",
+    "baseUrl": "src",
+    "outDir": "build",
     "typeRoots": ["node_modules/@types", "src/types"],
     "types": []
   },

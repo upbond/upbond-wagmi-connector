@@ -16,22 +16,18 @@ import { Options } from '../interfaces';
 
 const IS_SERVER = typeof window === 'undefined';
 
-export default class UpbondWagmiConnector extends Connector<
-  UpbondInpageProvider,
-  Options,
-  Signer
-> {
+export default class UpbondWagmiConnector extends Connector {
   ready = !IS_SERVER;
 
-  id = 'upbond';
+  readonly id = 'upbond';
 
-  name = 'Upbond Wallet';
+  readonly name = 'Upbond Wallet';
 
-  provider: UpbondInpageProvider | null = null;
+  protected provider: UpbondInpageProvider | null = null;
 
-  upbondInstance!: Upbond;
+  private upbondInstance!: Upbond;
 
-  torusOptions: Options;
+  private torusOptions: Options;
 
   isConnected: boolean;
 
@@ -39,14 +35,17 @@ export default class UpbondWagmiConnector extends Connector<
 
   upbondInitialParams = initialUpbondConfig;
 
-  network = initialUpbondConfig.network;
+  private network = initialUpbondConfig.network;
 
   constructor(config: {
     chains: Chain[];
     options: Options;
     upbondInitialParams?: IUpbondEmbedParams;
   }) {
-    super(config);
+    super({
+      options: config.options,
+      chains: config.chains,
+    });
 
     const chainId = config.options.chainId ? config.options.chainId : 1;
     const host = config.options.host ? config.options.host : 'mainnet';
