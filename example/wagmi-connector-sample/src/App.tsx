@@ -10,7 +10,7 @@ import { configureChains, createClient, useSigner, WagmiConfig } from 'wagmi';
 import { publicProvider } from 'wagmi/providers/public';
 
 import ConnectorLayout from './layouts/ConnectorLayout';
-import UpbondWagmiConnector from './connectorDist';
+import UpbondWagmiConnector from '@upbond/wagmi-connector';
 import { Home } from './pages/Home';
 
 const { chains, provider } = configureChains(

@@ -3,7 +3,7 @@ import { goerli, mainnet, polygon, polygonMumbai } from '@wagmi/core/chains';
 import React, { useEffect } from 'react';
 import { configureChains, useConnect, useDisconnect } from 'wagmi';
 import { publicProvider } from 'wagmi/providers/public';
-import UpbondWagmiConnector from '../connectorDist';
+import UpbondWagmiConnector from '@upbond/wagmi-connector';
 
 const Header = () => {
   const address = useAddress();

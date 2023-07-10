@@ -7,7 +7,7 @@ import { Connector, useAccount, useConnect, useDisconnect } from 'wagmi';
 import ModalWrapper from '../components/ModalWrapper';
 import Navbar from '../components/Nav';
 import { chains } from '../config/wagmi';
-import UpbondWagmiConnector from '../connectorDist';
+import UpbondWagmiConnector from '@upbond/wagmi-connector';
 
 const theme = createTheme({
   palette: {

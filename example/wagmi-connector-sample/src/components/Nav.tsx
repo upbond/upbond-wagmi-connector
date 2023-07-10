@@ -31,7 +31,9 @@ export default function Navbar({
             <MenuIcon />
           </IconButton>
           <div className='flex-1'>
-            <p className='text-2xl font-bold font-vt'>Upbond Wagmi Connector</p>
+            <p className='text-2xl font-bold font-vt'>
+              Example of UPBOND Wagmi Connector
+            </p>
           </div>
           <button
             type='button'
