@@ -5,7 +5,7 @@ import {
 } from '@thirdweb-dev/react';
 import { goerli, mainnet, polygon, polygonMumbai } from '@wagmi/core/chains';
 import { Signer } from 'ethers';
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { configureChains, createClient, useSigner, WagmiConfig } from 'wagmi';
 import { publicProvider } from 'wagmi/providers/public';
 

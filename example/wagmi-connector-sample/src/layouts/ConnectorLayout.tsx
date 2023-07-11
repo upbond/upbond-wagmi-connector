@@ -50,21 +50,6 @@ const ConnectorLayout = ({
     }
   };
 
-  // const params = new URLSearchParams(window.location.search);
-  // useEffect(() => {
-  //   if (params.get('selectedAddress')) {
-  //     const autoLoginData = JSON.stringify({
-  //       selectedAddress: params.get('selectedAddress'),
-  //       verifier: params.get('verifier'),
-  //       loggedIn: params.get('loggedIn'),
-  //       rehydrate: params.get('rehydrate'),
-  //       state: params.get('state'),
-  //     });
-  //     localStorage.setItem('autoLogin', autoLoginData);
-  //     connect({ connector: upbondConnector });
-  //   }
-  // }, [params.get('selectedAddress')]);
-
   useEffect(() => {
     const initConnector = async () => {
       const isAuthorized = await upbondConnector.isAuthorized();

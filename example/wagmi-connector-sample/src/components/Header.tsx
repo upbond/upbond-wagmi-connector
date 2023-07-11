@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useAddress } from '@thirdweb-dev/react';
 import { goerli, mainnet, polygon, polygonMumbai } from '@wagmi/core/chains';
 import React, { useEffect } from 'react';
