@@ -28,7 +28,7 @@ const ConnectorLayout = ({
   wagmiClient: any;
 }) => {
   const upbondConnector = new UpbondWagmiConnector({
-    chains,
+    chains: chains as any,
     options: {
       host: 'mumbai',
       chainId: 80001,
@@ -68,9 +68,8 @@ const ConnectorLayout = ({
   useEffect(() => {
     const initConnector = async () => {
       const isAuthorized = await upbondConnector.isAuthorized();
-      console.log(isAuthorized, '@isAuthorized?');
       if (isAuthorized) {
-        connect({ connector: upbondConnector });
+        connect({ connector: upbondConnector as any });
       }
     };
 
@@ -88,7 +87,7 @@ const ConnectorLayout = ({
           setOpenConnectModal(true);
         }}
       />
-      <div className='container mx-auto pt-10'>{children}</div>
+      <div>{children}</div>
       <ModalWrapper
         open={openConnectModal}
         handleClose={() => setOpenConnectModal(false)}

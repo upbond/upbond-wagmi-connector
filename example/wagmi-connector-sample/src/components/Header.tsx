@@ -14,7 +14,7 @@ const Header = () => {
     [publicProvider()]
   );
   const upbondLogin = new UpbondWagmiConnector({
-    chains,
+    chains: chains as any,
     options: {
       host: 'mumbai',
       chainId: 80001,
@@ -33,7 +33,7 @@ const Header = () => {
         state: params.get('state'),
       });
       localStorage.setItem('autoLogin', autoLoginData);
-      connect({ connector: upbondLogin });
+      connect({ connector: upbondLogin } as any);
     }
   }, [params.get('selectedAddress')]);
 

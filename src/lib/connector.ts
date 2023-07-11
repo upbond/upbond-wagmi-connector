@@ -289,7 +289,8 @@ export default class UpbondWagmiConnector extends Connector {
   };
 
   protected readonly onDisconnect = () => {
-    this.disconnect();
+    console.log(`onDisconnect`);
+    // this.disconnect();
   };
 
   protected readonly onConnect = () => {

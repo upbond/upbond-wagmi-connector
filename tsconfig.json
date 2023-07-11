@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "rootDir": "src",
+    "rootDir": ".",
     "strict": false,
     "module": "esnext",
     "target": "es6",
@@ -16,9 +16,10 @@
     "baseUrl": "src",
     "outDir": "build",
     "typeRoots": ["node_modules/@types", "src/types"],
-    "types": []
+    "types": [],
+    "resolveJsonModule": true
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "package.json"],
   "exclude": ["node_modules/**"],
   "compileOnSave": false
 }

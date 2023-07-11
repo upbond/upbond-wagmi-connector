@@ -13,9 +13,7 @@ export default function Navbar({
 }: {
   onConnectClicked: () => void;
 }) {
-  const { isConnected, address } = useAccount();
-
-  console.log(address, '@addresses');
+  const { isConnected } = useAccount();
 
   return (
     <Box sx={{ flexGrow: 1 }}>

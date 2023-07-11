@@ -44,7 +44,6 @@ function TwProvider({ children }: { children: ReactNode }) {
     >
       <ThirdwebSDKProvider
         activeChain={ChainId.Goerli}
-        queryClient={wagmiClient.queryClient}
         signer={userSigner as Signer}
       >
         {children}
