@@ -19,7 +19,7 @@
     "types": [],
     "resolveJsonModule": true
   },
-  "include": ["src/**/*.ts", "package.json"],
-  "exclude": ["node_modules/**"],
+  "include": ["package.json", "src/**/*.ts"],
+  "exclude": ["node_modules/**", "example/**"],
   "compileOnSave": false
 }
