@@ -19,6 +19,6 @@ jobs:
           scope: '@upbond'
       - run: yarn install --frozen-lockfile
       - run: yarn build
-      - run: cd dist && npm publish --access public
+      - run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
