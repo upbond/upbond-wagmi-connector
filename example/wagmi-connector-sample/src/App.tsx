@@ -14,6 +14,7 @@ import UpbondWagmiConnector from '@upbond/wagmi-connector';
 import { Home } from './pages/Home';
 
 const { chains, provider } = configureChains(
+  // @ts-ignore
   [polygon, polygonMumbai, goerli, mainnet],
   [publicProvider()]
 );

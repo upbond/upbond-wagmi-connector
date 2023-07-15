@@ -11,6 +11,7 @@ const Header = () => {
   const { connect, connectors, isLoading, pendingConnector } = useConnect();
   const { disconnect } = useDisconnect();
   const { chains } = configureChains(
+    // @ts-ignore
     [polygon, polygonMumbai, goerli, mainnet],
     [publicProvider()]
   );
