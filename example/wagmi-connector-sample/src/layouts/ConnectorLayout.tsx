@@ -2,12 +2,19 @@
 /* eslint-disable no-console */
 import { createTheme, ThemeProvider } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { Connector, useAccount, useConnect, useDisconnect } from 'wagmi';
+import {
+  configureChains,
+  Connector,
+  useAccount,
+  useConnect,
+  useDisconnect,
+} from 'wagmi';
 
 import ModalWrapper from '../components/ModalWrapper';
 import Navbar from '../components/Nav';
-import { chains } from '../config/wagmi';
-import UpbondWagmiConnector from '@upbond/wagmi-connector';
+import UpbondWagmiConnector from '../connector/wagmiConnector.esm';
+import { publicProvider } from 'wagmi/providers/public';
+import { polygon, mainnet, polygonMumbai, goerli } from 'wagmi/chains';
 
 const theme = createTheme({
   palette: {
@@ -20,15 +27,19 @@ const theme = createTheme({
   },
 });
 
+const { chains } = configureChains(
+  [polygon, mainnet, polygonMumbai, goerli],
+  [publicProvider()]
+);
+
 const ConnectorLayout = ({
   children,
-  wagmiClient,
 }: {
   children: React.ReactNode;
   wagmiClient: any;
 }) => {
   const upbondConnector = new UpbondWagmiConnector({
-    chains: chains as any,
+    chains: chains,
     options: {
       host: 'mumbai',
       chainId: 80001,

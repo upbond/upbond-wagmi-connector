@@ -2,21 +2,35 @@ import Upbond, {
   IUpbondEmbedParams,
   UpbondInpageProvider,
 } from '@upbond/upbond-embed';
-import {
-  Chain,
-  Connector,
-  ConnectorData,
-  normalizeChainId,
-  UserRejectedRequestError,
-} from '@wagmi/core';
+import { Chain, Connector, ConnectorData, WalletClient } from '@wagmi/core';
 import { ethers, Signer } from 'ethers';
+import {
+  Address,
+  createWalletClient,
+  custom,
+  getAddress,
+  UserRejectedRequestError,
+} from 'viem';
 
 import { initialUpbondConfig } from '../config';
 import { Options } from '../interfaces';
 
 const IS_SERVER = typeof window === 'undefined';
 
-export default class UpbondWagmiConnector extends Connector {
+function normalizeChainId(chainId: string | number | bigint) {
+  if (typeof chainId === 'string')
+    return Number.parseInt(
+      chainId,
+      chainId.trim().substring(0, 2) === '0x' ? 16 : 10
+    );
+  if (typeof chainId === 'bigint') return Number(chainId.toString(10));
+  return chainId;
+}
+
+export default class UpbondWagmiConnector extends Connector<
+  UpbondInpageProvider,
+  Options
+> {
   ready = !IS_SERVER;
 
   readonly id = 'upbond';
@@ -27,8 +41,6 @@ export default class UpbondWagmiConnector extends Connector {
 
   private upbondInstance!: Upbond;
 
-  private torusOptions: Options;
-
   isConnected: boolean;
 
   isConnectorInitialized = true;
@@ -38,7 +50,7 @@ export default class UpbondWagmiConnector extends Connector {
   private network = initialUpbondConfig.network;
 
   constructor(config: {
-    chains: Chain[];
+    chains?: Chain[];
     options: Options;
     upbondInitialParams?: IUpbondEmbedParams;
   }) {
@@ -51,7 +63,6 @@ export default class UpbondWagmiConnector extends Connector {
     const host = config.options.host ? config.options.host : 'mainnet';
 
     this.upbondInstance = new Upbond({});
-    this.torusOptions = config.options;
     this.isConnected = false;
 
     // set network according to chain details provided
@@ -108,6 +119,30 @@ export default class UpbondWagmiConnector extends Connector {
     }
   }
 
+  setStorage(storage: {
+    getItem<T>(key: string, defaultState?: T): T;
+    setItem<T>(key: string, value: T): void;
+    removeItem(key: string): void;
+  }) {
+    return true;
+  }
+
+  async getWalletClient({
+    chainId,
+  }: { chainId?: number } = {}): Promise<WalletClient> {
+    const [provider, account] = await Promise.all([
+      this.getProvider(),
+      this.getAccount(),
+    ]);
+    const chain = this.chains.find((x) => x.id === chainId);
+    if (!provider) throw new Error('provider is required.');
+    return createWalletClient({
+      account,
+      chain,
+      transport: custom(provider),
+    });
+  }
+
   async connect(): Promise<Required<ConnectorData>> {
     try {
       this.emit('message', {
@@ -115,7 +150,10 @@ export default class UpbondWagmiConnector extends Connector {
       });
 
       if (!this.upbondInstance.isInitialized) {
-        await this.upbondInstance.init(this.upbondInitialParams);
+        await this.upbondInstance.init({
+          ...this.upbondInitialParams,
+          network: this.network,
+        });
       }
 
       if (!this.upbondInstance.isLoggedIn) await this.upbondInstance.login();
@@ -157,25 +195,22 @@ export default class UpbondWagmiConnector extends Connector {
             id: chainId as number,
             unsupported: false,
           },
-          provider,
         };
       }
       throw new Error('Failed to login, Please try again');
     } catch (error) {
       console.error(error, '@connectError');
-      throw new UserRejectedRequestError('Something went wrong');
+      throw new UserRejectedRequestError(new Error('Something went wrong'));
     }
   }
 
-  async getAccount(): Promise<`0x${string}`> {
+  async getAccount(): Promise<Address> {
     try {
-      const uProvider = await this.getProvider();
-      const provider = new ethers.providers.Web3Provider(
-        uProvider as UpbondInpageProvider
-      );
-      const signer = provider.getSigner();
-      const account = await signer.getAddress();
-      return account as `0x${string}`;
+      const provider = await this.getProvider();
+      const accounts = await provider.request<string[]>({
+        method: 'eth_accounts',
+      });
+      return getAddress(accounts[0]);
     } catch (error) {
       console.error('Error: Cannot get account:', error);
       throw error;
@@ -186,6 +221,11 @@ export default class UpbondWagmiConnector extends Connector {
     if (this.provider) {
       return this.provider;
     }
+
+    if (!this.upbondInstance.isInitialized) {
+      await this.upbondInstance.init(this.upbondInitialParams);
+    }
+
     this.provider = this.upbondInstance.provider as UpbondInpageProvider;
     return this.provider;
   }
