@@ -1,16 +1,24 @@
 {
   "name": "@upbond/wagmi-connector",
-  "version": "1.0.6",
+  "version": "1.0.8",
   "description": "manage the interaction of your DApp with UPBOND Wallet",
-  "main": "src/index.js",
-  "typings": "src/index.d.ts",
-  "module": "src/index.js",
+  "main": "dist/wagmiConnector.cjs.js",
+  "module": "dist/wagmiConnector.esm.js",
   "repository": "https://github.com/upbond/upbond-wagmi-connector",
-  "types": "src/index.d.ts",
+  "types": "dist/types/index.d.ts",
+  "unpkg": "dist/wagmiConnector.cjs.umd.min.js",
+  "jsdelivr": "dist/wagmiConnector.cjs.umd.min.js",
   "license": "MIT",
   "keywords": [],
+  "files": [
+    "src",
+    "LICENSE",
+    "CHANGELOG.md",
+    "dist"
+  ],
   "scripts": {
     "build": "rimraf build && run-p build:*",
+    "build:torus": "rimraf build && torus-scripts build",
     "build:main": "tsc -p tsconfig.json",
     "fix": "run-s fix:*",
     "fix:prettier": "prettier \"src/**/*.ts\" --write",
@@ -39,7 +47,8 @@
     "prepare-release": "run-s reset-hard test cov:check doc:html version doc:publish"
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=14.17.0",
+    "npm": ">=6.x"
   },
   "dependencies": {
     "@upbond/upbond-embed": "^1.3.10-rc.4",
@@ -50,6 +59,7 @@
   "devDependencies": {
     "@ava/typescript": "^1.1.1",
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
+    "@toruslabs/torus-scripts": "^4.0.0",
     "@typescript-eslint/eslint-plugin": "^4.0.1",
     "@typescript-eslint/parser": "^4.0.1",
     "ava": "^3.12.1",
@@ -71,26 +81,8 @@
     "typedoc": "^0.19.0",
     "typescript": "^4.0.2"
   },
-  "files": [
-    "build/main",
-    "build/module",
-    "!**/*.spec.*",
-    "!**/*.json",
-    "CHANGELOG.md",
-    "LICENSE",
-    "README.md"
-  ],
-  "ava": {
-    "failFast": true,
-    "timeout": "60s",
-    "typescript": {
-      "rewritePaths": {
-        "src/": "build/main/"
-      }
-    },
-    "files": [
-      "!build/module/**"
-    ]
+  "publishConfig": {
+    "access": "public"
   },
   "config": {
     "commitizen": {
