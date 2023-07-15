@@ -15,7 +15,7 @@ import { polygon, mainnet, polygonMumbai, goerli } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
 
 import ConnectorLayout from './layouts/ConnectorLayout';
-import UpbondWagmiConnector from './connector/wagmiConnector.esm';
+import UpbondWagmiConnector from '@upbond/wagmi-connector';
 import { Home } from './pages/Home';
 import { createStorage } from '@wagmi/core';
 

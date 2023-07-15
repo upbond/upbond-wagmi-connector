@@ -12,7 +12,7 @@ import {
 
 import ModalWrapper from '../components/ModalWrapper';
 import Navbar from '../components/Nav';
-import UpbondWagmiConnector from '../connector/wagmiConnector.esm';
+import UpbondWagmiConnector from '@upbond/wagmi-connector';
 import { publicProvider } from 'wagmi/providers/public';
 import { polygon, mainnet, polygonMumbai, goerli } from 'wagmi/chains';
 

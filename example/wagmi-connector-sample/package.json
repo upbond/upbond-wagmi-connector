@@ -17,7 +17,7 @@
     "@types/react": "^18.0.37",
     "@types/react-dom": "^18.0.11",
     "@upbond/upbond-embed": "1.3.10-rc.5",
-    "@upbond/wagmi-connector": "^1.0.8",
+    "@upbond/wagmi-connector": "^1.0.12",
     "clsx": "^1.2.1",
     "eslint-plugin-prettier": "^4.2.1",
     "ethers": "^5.7.2",
