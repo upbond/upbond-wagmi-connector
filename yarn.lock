@@ -3408,10 +3408,10 @@
     "@typescript-eslint/types" "4.33.0"
     eslint-visitor-keys "^2.0.0"
 
-"@upbond/upbond-embed@^1.3.10-rc.4":
-  version "1.3.10-rc.5"
-  resolved "https://registry.yarnpkg.com/@upbond/upbond-embed/-/upbond-embed-1.3.10-rc.5.tgz#6be4f0a4fce361fcc74ef6273ef79d15e5cef163"
-  integrity sha512-njqYn+uxKHoGuWn+AYU4QxrgPKQjWShkirg3l6lJrw1Cf+7vyEFLltQVhSDfvV3UvKp6XsnZA5TFAvim6tmV0g==
+"@upbond/upbond-embed@^1.3.10-rc.3":
+  version "1.3.10"
+  resolved "https://registry.yarnpkg.com/@upbond/upbond-embed/-/upbond-embed-1.3.10.tgz#8411633ccc01538e84858a94d5f0cdba8c9055bc"
+  integrity sha512-hQhWzpWDXBneHXyXf41z2ikLq4PxrywFQ22CLmfHsWZPA0tXDpA5G2hk59em7rEkffjlH5cFsThxafWiGKrlDw==
   dependencies:
     "@ansugroup/timing-safe-equal" "^0.1.3"
     "@metamask/obs-store" "^7.0.0"
