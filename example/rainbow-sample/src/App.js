@@ -11,12 +11,25 @@ import { useEffect } from "react";
 import UpbondWalletConnector from "@upbond/wagmi-connector";
 import { polygon, mainnet, polygonMumbai, goerli } from 'wagmi/chains';
 
-const projectId = "8f6f7b9fc77c3aff921ff4c981b11bc8"
+const projectId = "be01ae256086eee8863f0612e8e9ddfa"
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [mainnet, polygon, polygonMumbai, goerli],
   [publicProvider()]
 );
+
+const connector = new UpbondWalletConnector({
+  chains: chains,
+  options: {
+    host: 'goerli',
+    chainId: 5,
+    buttonPosition: 'bottom-left'
+  },
+  upbondInitialParams: {
+    buildEnv: 'development'
+  }
+});
+
 const connectors = connectorsForWallets([
   {
     groupName: "Recommended",
@@ -29,22 +42,19 @@ const connectors = connectorsForWallets([
         iconUrl: "https://i.ibb.co/wBmybLc/company-button-logo-sample.png",
         iconBackground: "#fff",
         createConnector: () => {
-          const connector = new UpbondWalletConnector({
-            chains: chains,
-            options: {
-              host: 'goerli',
-              chainId: 5,
-              buttonPosition: 'bottom-left'
-            },
-          });
-
           connector.on("message", ({ type }) => {
             if (type === "connecting") {
-              if (document && document.getElementById("upbondIframe").style) {
+              const upbondIframe = document.getElementById("upbondIframe");
+              if (upbondIframe && upbondIframe?.style) {
                 document.getElementById("upbondIframe").style.zIndex = "999999999999999999";
               }
             }
           })
+
+          const wagmiStore = JSON.parse(localStorage.getItem('wagmi.store'));
+          if (wagmiStore && wagmiStore?.state?.data?.account) {
+            connector.getAccount = () => wagmiStore?.state?.data?.account;
+          }
 
           return {
             connector,
@@ -65,16 +75,13 @@ const wagmiClient = createConfig({
 
 
 function UpbondProvider({ children }) {
-  const { connect, connectors } = useConnect();
+  const { connect } = useConnect();
   const { isConnected } = useAccount();
 
   useEffect(() => {
-    connectors.map((connector) => {
-      if (connector.id === "upbond") {
-        if (!isConnected && connector.ready) connect({ connector });
-      }
-    });
+    if (!isConnected && connector.ready) connect({ connector });
   }, []);
+
   return children
 }
 

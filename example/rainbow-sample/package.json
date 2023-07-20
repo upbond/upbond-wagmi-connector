@@ -7,15 +7,14 @@
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.4.3",
-    "@toruslabs/torus-wagmi-connector": "file:../",
     "@upbond/upbond-embed": "1.3.10-rc.3",
-    "@upbond/wagmi-connector": "^1.0.12",
+    "@upbond/wagmi-connector": "1.0.15",
     "ethers": "5.7.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "viem": "^1.3.0",
-    "wagmi": "^1",
+    "wagmi": "1",
     "web-vitals": "^3.0.4"
   },
   "devDependencies": {
