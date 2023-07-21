@@ -73,7 +73,7 @@ export class UpbondWalletConnector extends Connector {
       },
     };
     // set network according to chain details provided
-    const chain = this.chainList.find((x) => x.id === chainId);
+    const chain = Array.isArray(this.chainList) ? this.chainList.find((x) => x.id === chainId) : null;
 
     if (chain && config.options.host && config.options.dappRedirectUri) {
       this.network = {
