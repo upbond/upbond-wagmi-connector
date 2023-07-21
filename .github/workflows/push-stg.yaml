@@ -1,0 +1,65 @@
+name: Deploy to S3 Stg
+
+on:
+  push:
+    branches:
+      - master
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    steps:
+      # checkout module
+      - uses: actions/checkout@v1
+      # Specify node version
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: npm 7
+        run: npm i -g npm@7 --registry=https://registry.npmjs.org
+      - name: install and build prod
+        env:
+          NODE_ENV: "stg"
+          TOKEN: ${{ secrets.ORG_PERSONAL_GITHUB_WRITE_PACKAGE_TOKEN }}
+          NEXT_PUBLIC_UPBOND_BUILD_ENV: "development"
+        # run: |
+        #   npm install --legacy-peer-deps
+        #   # rm -rf ./dist/
+        #   cd ./demo/
+        #   npm install --legacy-peer-deps
+        #   rm -rf ./build/
+        #   DISABLE_ESLINT_PLUGIN=true npm run build
+
+        run: |
+          npm install --legacy-peer-deps
+          DISABLE_ESLINT_PLUGIN=true npm run build
+          cd ./demo/
+          npm install --legacy-peer-deps
+          DISABLE_ESLINT_PLUGIN=true npm run build
+
+      # Deploy to S3 bucket
+      - name: upload-s3
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --follow-symlinks --delete
+        env:
+          AWS_S3_BUCKET: "wallet-rainbowkit-connector"
+          AWS_ACCESS_KEY_ID: ${{ secrets.ORG_AWS_ADMIN_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.ORG_AWS_ADMIN_SECRET_KEY }}
+          AWS_REGION: "ap-northeast-1" # optional: defaults to us-east-1
+          SOURCE_DIR: "./demo/build" # optional: defaults to entire repository
+
+      - name: Invalidate CloudFront
+        uses: chetan/invalidate-cloudfront-action@v2
+        env:
+          DISTRIBUTION: "E1NZ019IVKDBQ3"
+          PATHS: "/index.html"
+          AWS_REGION: "ap-northeast-1"
+          AWS_ACCESS_KEY_ID: ${{ secrets.ORG_AWS_ADMIN_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.ORG_AWS_ADMIN_SECRET_KEY }}
