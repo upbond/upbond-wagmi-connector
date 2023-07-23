@@ -15,7 +15,8 @@ const connector = new UpbondWalletConnector({
   options: {
     host: 'goerli',
     chainId: 5,
-    buttonPosition: 'bottom-left'
+    buttonPosition: 'bottom-left',
+    modalZIndex: 999999999999999999
   },
   upbondInitialParams: {
     buildEnv: 'development'
@@ -62,43 +63,25 @@ const wagmiClient = createClient({
   provider,
 });
 
-
-function UpbondProvider({ children }) {
-  const upbondIframe = document.getElementById("upbondIframe");
-
-  useEffect(() => {
-    connector.on("message", ({ type, data }) => {
-      if (type === "connecting") {
-        if (upbondIframe && upbondIframe?.style) {
-          document.getElementById("upbondIframe").style.zIndex = "999999999999999999";
-        }
-      }
-    })
-  }, [connector]);
-
-  return children
-}
-
 export default function App() {
   return (
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider chains={chains}>
-        <UpbondProvider>
-          <div
-            style={{
-              position: "fixed",
-              top: 0,
-              bottom: 0,
-              left: 0,
-              right: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontFamily: "sans-serif",
-            }}
-          >
-            <ConnectButton />
-          </div></UpbondProvider>
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontFamily: "sans-serif",
+          }}
+        >
+          <ConnectButton />
+        </div>
       </RainbowKitProvider>
     </WagmiConfig>
   );
