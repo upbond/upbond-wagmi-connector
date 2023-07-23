@@ -136,6 +136,10 @@ export default class UpbondWalletConnector extends Connector {
       // Check if there is a user logged in
       const isAuthenticated = await this.isAuthorized();
 
+      this.emit('message', {
+        type: 'initialized',
+      });
+
       // Check if we have a chainId, in case of error just assign 0 for legacy
       // if there is a user logged in, return the user
       if (isAuthenticated) {

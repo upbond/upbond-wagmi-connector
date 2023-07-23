@@ -5,7 +5,6 @@ import "@rainbow-me/rainbowkit/styles.css";
 import { ConnectButton, connectorsForWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { rainbowWallet, metaMaskWallet } from "@rainbow-me/rainbowkit/wallets";
 import { chain, createClient, WagmiConfig, configureChains } from "wagmi";
-import { useAccount, useConnect } from "wagmi";
 import { publicProvider } from "wagmi/providers/public";
 import { useEffect } from "react";
 import UpbondWalletConnector from '@upbond/wagmi-connector'
@@ -27,8 +26,8 @@ const connectors = connectorsForWallets([
   {
     groupName: "Recommended",
     wallets: [
-      rainbowWallet({ chains}),
-      metaMaskWallet({ chains}),
+      rainbowWallet({ chains }),
+      metaMaskWallet({ chains }),
       {
         id: "upbond",
         name: "Upbond",
@@ -65,16 +64,18 @@ const wagmiClient = createClient({
 
 
 function UpbondProvider({ children }) {
-  const { connect, connectors } = useConnect();
-  const { isConnected } = useAccount();
+  const upbondIframe = document.getElementById("upbondIframe");
 
   useEffect(() => {
-    connectors.map((connector) => {
-      if (connector.id === "upbond") {
-        if (!isConnected && connector.ready) connect({ connector });
+    connector.on("message", ({ type, data }) => {
+      if (type === "connecting") {
+        if (upbondIframe && upbondIframe?.style) {
+          document.getElementById("upbondIframe").style.zIndex = "999999999999999999";
+        }
       }
-    });
-  }, []);
+    })
+  }, [connector]);
+
   return children
 }
 
@@ -83,21 +84,21 @@ export default function App() {
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider chains={chains}>
         <UpbondProvider>
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontFamily: "sans-serif",
-          }}
-        >
-          <ConnectButton />
-        </div></UpbondProvider>
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              bottom: 0,
+              left: 0,
+              right: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontFamily: "sans-serif",
+            }}
+          >
+            <ConnectButton />
+          </div></UpbondProvider>
       </RainbowKitProvider>
     </WagmiConfig>
   );
