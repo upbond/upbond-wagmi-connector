@@ -8,4 +8,6 @@ export type Options = TorusCtorArgs & {
   readonly host: ETHEREUM_NETWORK_TYPE | string;
   readonly chainId?: number;
   readonly UpbondParams?: Omit<IUpbondEmbedParams, 'network'>;
+  dappRedirectUri?: string;
+  theme: string;
 };

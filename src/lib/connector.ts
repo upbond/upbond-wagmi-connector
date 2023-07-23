@@ -1,146 +1,114 @@
+/* eslint-disable functional/no-let */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Upbond, {
-  IUpbondEmbedParams,
+  UPBOND_BUILD_ENV,
   UpbondInpageProvider,
 } from '@upbond/upbond-embed';
-import { Chain, Connector, ConnectorData, WalletClient } from '@wagmi/core';
 import { ethers, Signer } from 'ethers';
-import {
-  Address,
-  createWalletClient,
-  custom,
-  getAddress,
-  UserRejectedRequestError,
-} from 'viem';
+import log from 'loglevel';
+import { Chain, Connector, ConnectorData } from 'wagmi';
 
-import { initialUpbondConfig } from '../config';
 import { Options } from '../interfaces';
-
 const IS_SERVER = typeof window === 'undefined';
 
-function normalizeChainId(chainId: string | number | bigint) {
-  if (typeof chainId === 'string')
-    return Number.parseInt(
-      chainId,
-      chainId.trim().substring(0, 2) === '0x' ? 16 : 10
-    );
-  if (typeof chainId === 'bigint') return Number(chainId.toString(10));
-  return chainId;
-}
-
-export default class UpbondWagmiConnector extends Connector<
-  UpbondInpageProvider,
-  Options
-> {
+export default class UpbondWalletConnector extends Connector {
   ready = !IS_SERVER;
 
   readonly id = 'upbond';
 
-  readonly name = 'Upbond Wallet';
+  readonly name = 'Upbond';
 
-  protected provider: UpbondInpageProvider | null = null;
+  provider: UpbondInpageProvider | null = null;
 
-  private upbondInstance!: Upbond;
+  upbondInstance!: Upbond;
+
+  upbondWalletOptions: Options;
 
   isConnected: boolean;
 
-  isConnectorInitialized = true;
+  configUpbond: any;
 
-  upbondInitialParams = initialUpbondConfig;
+  network = {
+    host: 'mumbai',
+    chainId: 80001,
+    networkName: 'mumbai',
+    blockExplorer: 'https://mumbai.polygonscan.com/',
+    ticker: 'MUMBAI',
+    tickerName: 'MUMBAI',
+    rpcUrl:
+      'https://polygon-mumbai.infura.io/v3/74a97bae118345ecbadadaaeb1cf4a53',
+  };
 
-  private network = initialUpbondConfig.network;
+  chainList: Chain[];
 
-  constructor(config: {
-    chains?: Chain[];
-    options: Options;
-    upbondInitialParams?: IUpbondEmbedParams;
-  }) {
-    super({
-      options: config.options,
-      chains: config.chains,
-    });
-
+  constructor(config: { chainList: Chain[]; options: Options }) {
+    super(config);
+    this.upbondWalletOptions = config.options;
     const chainId = config.options.chainId ? config.options.chainId : 1;
     const host = config.options.host ? config.options.host : 'mainnet';
-
-    this.upbondInstance = new Upbond({});
+    this.upbondInstance = new Upbond({
+      modalZIndex: config.options.modalZIndex,
+    });
     this.isConnected = false;
-
+    this.chainList = config.chainList;
+    this.configUpbond = {
+      buildEnv: UPBOND_BUILD_ENV.DEVELOPMENT,
+      network: this.network,
+      dappRedirectUri: config.options.dappRedirectUri,
+      whiteLabel: {
+        walletTheme: {
+          logo: 'https://i.ibb.co/L6vHB5d/company-logo-sample.png',
+          name: 'Company',
+          buttonLogo: 'https://i.ibb.co/wBmybLc/company-button-logo-sample.png',
+          isActive: true,
+          modalColor: '#fffff',
+          bgColor: '#4B68AE',
+          bgColorHover: '#214999',
+          textColor: '#f3f3f3',
+          textColorHover: '#214999',
+          theme: config.options.theme,
+          upbondLogin: {
+            globalBgColor: '#ffffff',
+            globalTextColor: '#4B68AE',
+          },
+        },
+      },
+      widgetConfig: {
+        showAfterLoggedIn: true,
+        showBeforeLoggedIn: true,
+      },
+    };
     // set network according to chain details provided
-    const chain = this.chains.find((x) => x.id === chainId);
+    const chain = Array.isArray(this.chainList)
+      ? this.chainList.find((x) => x.id === chainId)
+      : null;
 
-    if (chain) {
+    if (chain && config.options.host && config.options.dappRedirectUri) {
       this.network = {
         host,
         chainId,
         networkName: chain.name,
         tickerName: chain.nativeCurrency?.name,
         ticker: chain.nativeCurrency?.symbol,
-        blockExplorer: chain.blockExplorers?.default?.url as string,
+        blockExplorer: chain.blockExplorers?.default?.url,
+        rpcUrl: 'https://eth.llamarpc.com',
       };
-    } else {
-      console.warn(`ChainId ${chainId} not found in chain list`);
-      this.emit('disconnect');
-    }
-
-    this.isConnectorInitialized = true;
-
-    if (
-      config.upbondInitialParams &&
-      Object.keys(config.upbondInitialParams).length > 0
-    ) {
-      this.upbondInitialParams = {
-        ...this.upbondInitialParams,
-        ...config.upbondInitialParams,
-      };
+      this.configUpbond.network = this.network;
     }
   }
 
-  async initConnector() {
-    this.emit('message', {
-      type: 'connecting',
-    });
-
-    await this.upbondInstance.init(this.upbondInitialParams);
-    const isUpbondLoggedIn =
-      this.upbondInstance.isLoggedIn && this.upbondInstance.isInitialized;
-    if (isUpbondLoggedIn) {
-      this.isConnected = true;
-      this.onConnect();
-
-      const provider = this.upbondInstance.provider as UpbondInpageProvider;
-      if (provider.on) {
-        provider.on('connect', this.onConnect);
-        provider.on('accountsChanged', this.onAccountsChanged);
-        provider.on('chainChanged', (res) =>
-          this.onChainChanged(res as string)
-        );
-        provider.on('disconnect', this.onDisconnect);
-      }
-    }
+  async init() {
+    await this.upbondInstance.init(this.configUpbond);
   }
 
-  setStorage(storage: {
-    getItem<T>(key: string, defaultState?: T): T;
-    setItem<T>(key: string, value: T): void;
-    removeItem(key: string): void;
-  }) {
-    return true;
-  }
-
-  async getWalletClient({
-    chainId,
-  }: { chainId?: number } = {}): Promise<WalletClient> {
-    const [provider, account] = await Promise.all([
-      this.getProvider(),
-      this.getAccount(),
-    ]);
-    const chain = this.chains.find((x) => x.id === chainId);
-    if (!provider) throw new Error('provider is required.');
-    return createWalletClient({
-      account,
-      chain,
-      transport: custom(provider),
-    });
+  normalizeChainId(chainId: any): number {
+    if (typeof chainId === 'string')
+      return Number.parseInt(
+        chainId,
+        chainId.trim().substring(0, 2) === '0x' ? 16 : 10
+      );
+    if (typeof chainId === 'bigint') return Number(chainId);
+    return chainId;
   }
 
   async connect(): Promise<Required<ConnectorData>> {
@@ -148,71 +116,62 @@ export default class UpbondWagmiConnector extends Connector<
       this.emit('message', {
         type: 'connecting',
       });
-
       if (!this.upbondInstance.isInitialized) {
-        await this.upbondInstance.init({
-          ...this.upbondInitialParams,
-          network: this.network,
-        });
+        await this.upbondInstance.init(this.configUpbond);
       }
 
-      if (!this.upbondInstance.isLoggedIn) await this.upbondInstance.login();
-
-      const provider = this.upbondInstance.provider as UpbondInpageProvider;
+      if (this.upbondInstance.isInitialized && !this.upbondInstance.isLoggedIn)
+        await this.upbondInstance.login();
+      const { provider } = this.upbondInstance;
       if (provider.on) {
-        provider.on('connect', () => {
-          // TODO: do anything with on connect emitter
+        provider.on('connect', (res: any) => {
+          this.emit('connect', res);
         });
         provider.on('accountsChanged', this.onAccountsChanged);
-        provider.on('chainChanged', async (res) => {
-          this.onChainChanged(res as string);
+        provider.on('chainChanged', (res: any) => {
+          this.onChainChanged(res as any);
         });
         provider.on('disconnect', this.onDisconnect);
       }
-
       // Check if there is a user logged in
       const isAuthenticated = await this.isAuthorized();
 
       // Check if we have a chainId, in case of error just assign 0 for legacy
       // if there is a user logged in, return the user
       if (isAuthenticated) {
-        this.onConnect();
-        const account = await this.getAccount();
-
-        const getChainId = async () => {
-          try {
-            return await this.getChainId();
-          } catch (error) {
-            return 0;
-          }
-        };
-
-        const chainId = await getChainId();
-
+        const signer = await this.getSigner();
+        const account: any = await signer.getAddress();
+        let chainId;
+        try {
+          chainId = await this.getChainId();
+        } catch (e) {
+          chainId = 0;
+        }
         return {
           account,
           chain: {
-            id: chainId as number,
+            id: chainId,
             unsupported: false,
           },
+          provider,
         };
       }
-      throw new Error('Failed to login, Please try again');
-    } catch (error) {
-      console.error(error, '@connectError');
-      throw new UserRejectedRequestError(new Error('Something went wrong'));
+    } catch (error: any) {
+      localStorage.setItem('wagmi.wallet', JSON.stringify('upbond'));
+      throw new Error(error.reason);
     }
+    throw new Error(`failedToLogin`);
   }
 
-  async getAccount(): Promise<Address> {
+  async getAccount(): Promise<any> {
     try {
-      const provider = await this.getProvider();
-      const accounts = await provider.request<string[]>({
-        method: 'eth_accounts',
-      });
-      return getAddress(accounts[0]);
+      const uProvider = await this.getProvider();
+      const provider = new ethers.providers.Web3Provider(uProvider as any);
+      const signer = provider.getSigner();
+      const account = await signer.getAddress();
+      return account;
     } catch (error) {
-      console.error('Error: Cannot get account:', error);
+      log.error('Error: Cannot get account:', error);
       throw error;
     }
   }
@@ -221,50 +180,43 @@ export default class UpbondWagmiConnector extends Connector<
     if (this.provider) {
       return this.provider;
     }
-
-    if (!this.upbondInstance.isInitialized) {
-      await this.upbondInstance.init(this.upbondInitialParams);
-    }
-
-    this.provider = this.upbondInstance.provider as UpbondInpageProvider;
+    this.provider = this.upbondInstance.provider as any;
     return this.provider;
   }
 
   async getSigner(): Promise<Signer> {
     try {
       const provider = new ethers.providers.Web3Provider(
-        await this.getProvider()
+        (await this.getProvider()) as any
       );
       const signer = provider.getSigner();
       return signer;
     } catch (error) {
-      console.error('Error: Cannot get signer:', error);
+      log.error('Error: Cannot get signer:', error);
       throw error;
     }
   }
 
-  async isAuthorized(): Promise<boolean> {
-    if (!this.upbondInstance.isInitialized) {
-      await this.upbondInstance.init(this.upbondInitialParams);
-    }
-    return this.upbondInstance.isLoggedIn && !!this.upbondInstance.provider;
+  async isAuthorized() {
+    return this.upbondInstance && this.upbondInstance.isLoggedIn;
   }
 
   async getChainId(): Promise<number> {
     try {
       const provider = await this.getProvider();
-      if (!provider && this.network?.chainId) {
-        return normalizeChainId(this.network.chainId);
+      if (!provider && this.network.chainId) {
+        return this.normalizeChainId(this.network.chainId);
       } else if (provider) {
-        const chainId = await provider.request({ method: 'eth_chainId' });
+        const { chainId } = provider;
         if (chainId) {
-          return normalizeChainId(chainId as string);
+          return this.normalizeChainId(chainId as string);
         }
+        return this.normalizeChainId(this.network.chainId);
       }
 
       throw new Error('Chain ID is not defined');
     } catch (error) {
-      console.error('Error: Cannot get Chain Id from the network.', error);
+      log.error('Error: Cannot get Chain Id from the network.', error);
       throw error;
     }
   }
@@ -281,7 +233,8 @@ export default class UpbondWagmiConnector extends Connector<
       const selectedNetwork = upbondSupportedNetworks.find(
         (network) => network.chainId === chainId
       );
-      const wagmiSelectedNetwork = this.chains.find(
+
+      const wagmiSelectedNetwork = this.chainList.find(
         (chain) => chain.id === chainId
       );
       if (!wagmiSelectedNetwork) {
@@ -302,38 +255,45 @@ export default class UpbondWagmiConnector extends Connector<
       });
       return wagmiSelectedNetwork;
     } catch (error) {
-      console.error('Error: Cannot change chain', error);
+      log.error('Error: Cannot change chain', error);
       throw error;
     }
   }
 
   async disconnect(): Promise<void> {
-    await this.upbondInstance.logout();
-    await this.upbondInstance.cleanUp();
-    localStorage.clear();
-    window.location.reload();
+    if (this.upbondInstance instanceof Upbond) {
+      window.parent.postMessage({ type: 'UPBOND_LOGOUT', value: '' }, '*');
+      await this.upbondInstance.logout();
+      await this.upbondInstance.cleanUp();
+
+      localStorage.clear();
+      sessionStorage.clear();
+    }
   }
 
   protected isChainUnsupported(chainId: number): boolean {
-    return !this.chains.some((x) => x.id === chainId);
+    return !this.chainList.some((x) => x.id === chainId);
   }
 
-  protected readonly onAccountsChanged = (...accounts: unknown[]) => {
-    this.emit('change', { account: accounts[0] as `0x${string}` });
+  protected onAccountsChanged = (...accounts: unknown[]) => {
+    if (accounts.length === 0) {
+      this.emit('disconnect');
+    } else {
+      window.parent.postMessage(
+        { type: 'UPBOND_SELECTED_ADDRESS', value: accounts[0] },
+        '*'
+      );
+      this.emit('change', { account: accounts[0] as `0x${string}` });
+    }
   };
 
-  protected readonly onChainChanged = (chainId: string | number) => {
-    const id = normalizeChainId(chainId);
+  protected onChainChanged = (chainId: string | number): any => {
+    const id: number = this.normalizeChainId(chainId);
     const unsupported = this.isChainUnsupported(id);
     this.emit('change', { chain: { id, unsupported } });
   };
 
-  protected readonly onDisconnect = () => {
-    console.log(`onDisconnect`);
+  protected onDisconnect = () => {
     // this.disconnect();
-  };
-
-  protected readonly onConnect = () => {
-    this.emit('connect', {});
   };
 }
