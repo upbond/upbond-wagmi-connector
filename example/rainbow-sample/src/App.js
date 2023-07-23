@@ -4,20 +4,13 @@ import "@rainbow-me/rainbowkit/styles.css";
 
 import { ConnectButton, connectorsForWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { rainbowWallet, metaMaskWallet } from "@rainbow-me/rainbowkit/wallets";
-import { WagmiConfig, configureChains, createStorage, createConfig } from "wagmi";
+import { chain, createClient, WagmiConfig, configureChains } from "wagmi";
 import { useAccount, useConnect } from "wagmi";
-import { publicProvider } from 'wagmi/providers/public';
+import { publicProvider } from "wagmi/providers/public";
 import { useEffect } from "react";
-import UpbondWalletConnector from "@upbond/wagmi-connector";
-import { polygon, mainnet, polygonMumbai, goerli } from 'wagmi/chains';
+import UpbondWalletConnector from '@upbond/wagmi-connector'
 
-const projectId = "be01ae256086eee8863f0612e8e9ddfa"
-
-const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [mainnet, polygon, polygonMumbai, goerli],
-  [publicProvider()]
-);
-
+const { chains, provider } = configureChains([chain.mainnet, chain.polygon, chain.optimism, chain.arbitrum], [publicProvider()]);
 const connector = new UpbondWalletConnector({
   chains: chains,
   options: {
@@ -34,8 +27,8 @@ const connectors = connectorsForWallets([
   {
     groupName: "Recommended",
     wallets: [
-      rainbowWallet({ chains, projectId }),
-      metaMaskWallet({ chains, projectId }),
+      rainbowWallet({ chains}),
+      metaMaskWallet({ chains}),
       {
         id: "upbond",
         name: "Upbond",
@@ -64,49 +57,48 @@ const connectors = connectorsForWallets([
     ],
   },
 ]);
-
-const wagmiClient = createConfig({
+const wagmiClient = createClient({
   autoConnect: true,
   connectors,
-  publicClient,
-  webSocketPublicClient,
-  storage: createStorage({ storage: localStorage })
+  provider,
 });
 
 
 function UpbondProvider({ children }) {
-  const { connect } = useConnect();
+  const { connect, connectors } = useConnect();
   const { isConnected } = useAccount();
 
   useEffect(() => {
-    if (!isConnected && connector.ready) connect({ connector });
+    connectors.map((connector) => {
+      if (connector.id === "upbond") {
+        if (!isConnected && connector.ready) connect({ connector });
+      }
+    });
   }, []);
-
   return children
 }
 
 export default function App() {
   return (
-    <WagmiConfig config={wagmiClient}>
+    <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider chains={chains}>
         <UpbondProvider>
-          <div
-            style={{
-              position: "fixed",
-              top: 0,
-              bottom: 0,
-              left: 0,
-              right: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontFamily: "sans-serif",
-            }}
-          >
-            <ConnectButton />
-          </div>
-        </UpbondProvider>
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontFamily: "sans-serif",
+          }}
+        >
+          <ConnectButton />
+        </div></UpbondProvider>
       </RainbowKitProvider>
-    </WagmiConfig >
+    </WagmiConfig>
   );
 }
