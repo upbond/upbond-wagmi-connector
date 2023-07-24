@@ -1,6 +1,6 @@
 {
   "name": "@upbond/wagmi-connector",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "manage the interaction of your DApp with UPBOND Wallet",
   "main": "dist/wagmiConnector.cjs.js",
   "module": "dist/wagmiConnector.esm.js",
