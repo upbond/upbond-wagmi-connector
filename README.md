@@ -18,6 +18,7 @@ yarn add @upbond/wagmi-connector
 
 ## Getting started
 
+- See running example in our [demo site](https://rainbowkit-connector-sample.upbond.io). You can refer to the demo source code in the example folder.
 - Setup your wagmi into your project, see [docs](https://wagmi.sh/core/getting-started)
 - Import upbond wagmi connector
 
@@ -46,7 +47,7 @@ const upbondConnector = new UpbondWagmiConnector({
 });
 
 const wagmiClient = createClient({
-  autoConnect: false,
+  autoConnect: true,
   provider,
   connectors: [upbondConnector /** or another connectors */],
 });
