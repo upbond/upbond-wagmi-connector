@@ -3,23 +3,29 @@ import {
   ThirdwebProvider,
   ThirdwebSDKProvider,
 } from '@thirdweb-dev/react';
-import { goerli, mainnet, polygon, polygonMumbai } from '@wagmi/core/chains';
 import { Signer } from 'ethers';
 import { ReactNode } from 'react';
-import { configureChains, createClient, useSigner, WagmiConfig } from 'wagmi';
+import {
+  configureChains,
+  createConfig,
+  useWalletClient,
+  WagmiConfig,
+} from 'wagmi';
+import { polygon, mainnet, polygonMumbai, goerli } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
 
 import ConnectorLayout from './layouts/ConnectorLayout';
 import UpbondWagmiConnector from '@upbond/wagmi-connector';
 import { Home } from './pages/Home';
+import { createStorage } from '@wagmi/core';
 
-const { chains, provider } = configureChains(
-  [polygon, polygonMumbai, goerli, mainnet],
+const { chains, publicClient, webSocketPublicClient } = configureChains(
+  [mainnet, polygon, polygonMumbai, goerli],
   [publicProvider()]
 );
 
 const upbondConnector = new UpbondWagmiConnector({
-  chains: chains as any,
+  chains,
   options: {
     host: 'goerli',
     chainId: 5,
@@ -27,24 +33,28 @@ const upbondConnector = new UpbondWagmiConnector({
   },
 });
 
-const wagmiClient = createClient({
+upbondConnector.setStorage = () => true;
+
+const wagmiClient = createConfig({
   autoConnect: false,
-  provider,
   connectors: [upbondConnector as any],
+  publicClient,
+  webSocketPublicClient,
+  storage: createStorage({ storage: localStorage }),
 });
 
 function TwProvider({ children }: { children: ReactNode }) {
-  const { data: userSigner } = useSigner();
+  const { data: userSigner } = useWalletClient();
 
   return (
     <ThirdwebProvider
       activeChain={ChainId.Goerli}
       queryClient={wagmiClient.queryClient}
-      signer={userSigner as Signer}
+      signer={userSigner as unknown as Signer}
     >
       <ThirdwebSDKProvider
         activeChain={ChainId.Goerli}
-        signer={userSigner as Signer}
+        signer={userSigner as unknown as Signer}
       >
         {children}
       </ThirdwebSDKProvider>
@@ -54,12 +64,10 @@ function TwProvider({ children }: { children: ReactNode }) {
 
 function MyApp() {
   return (
-    <WagmiConfig client={wagmiClient}>
-      <TwProvider>
-        <ConnectorLayout wagmiClient={wagmiClient}>
-          <Home />
-        </ConnectorLayout>
-      </TwProvider>
+    <WagmiConfig config={wagmiClient}>
+      <ConnectorLayout wagmiClient={wagmiClient}>
+        <Home />
+      </ConnectorLayout>
     </WagmiConfig>
   );
 }

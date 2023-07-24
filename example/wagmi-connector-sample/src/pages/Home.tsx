@@ -1,7 +1,5 @@
 /* eslint-disable no-console */
-import { useAddress, useSDK } from '@thirdweb-dev/react';
-import React, { useEffect } from 'react';
-import { useAccount, useNetwork, useProvider, useSwitchNetwork } from 'wagmi';
+import { useAccount, useNetwork, useSwitchNetwork } from 'wagmi';
 import clsxm from '../lib/clsxm';
 
 export const Home = () => {
@@ -10,22 +8,9 @@ export const Home = () => {
       console.log('Connected', { address, connector, isReconnected });
     },
   });
-  const sdk = useSDK();
+  console.log(userAddress, '@userAddress');
   const { switchNetwork } = useSwitchNetwork();
-  const address = useAddress();
   const { chain: chainWagmi, chains } = useNetwork();
-  const userProvider = useProvider();
-
-  useEffect(() => {
-    if (sdk && sdk.on) {
-      sdk.on('chainChanged', async (chainId) => {
-        sdk.updateSignerOrProvider(userProvider);
-      });
-      sdk.on('change', () => {
-        sdk.updateSignerOrProvider(userProvider);
-      });
-    }
-  }, [sdk, sdk?.on]);
 
   return (
     <div className='flex w-full min-h-screen bg-gray-800 pt-10 items-center gap-4 flex-col'>
@@ -44,7 +29,7 @@ export const Home = () => {
           </strong>{' '}
         </p>
       </div>
-      {address ? (
+      {userAddress ? (
         <>
           <img
             src='https://nftasset.s3.ap-northeast-1.amazonaws.com/UPBOND+LOGO.png'
