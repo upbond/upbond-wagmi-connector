@@ -1,60 +1,20 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable array-callback-return */
+/* eslint-disable react-hooks/exhaustive-deps */
 import "@rainbow-me/rainbowkit/styles.css";
 
 import { ConnectButton, connectorsForWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { rainbowWallet, metaMaskWallet } from "@rainbow-me/rainbowkit/wallets";
+import { metaMaskWallet } from "@rainbow-me/rainbowkit/wallets";
 import { chain, createClient, WagmiConfig, configureChains } from "wagmi";
+import { rainbowTorusConnector } from "./RainbowTorusConnector";
+import { useAccount, useConnect } from "wagmi";
 import { publicProvider } from "wagmi/providers/public";
 import { useEffect } from "react";
-import UpbondWalletConnector from '@upbond/wagmi-connector'
 
-const { chains, provider } = configureChains([chain.mainnet, chain.polygon, chain.optimism, chain.arbitrum], [publicProvider()]);
-const connector = new UpbondWalletConnector({
-  chains: chains,
-  options: {
-    host: 'goerli',
-    chainId: 5,
-    buttonPosition: 'bottom-left',
-    modalZIndex: 999999999999999999
-  },
-  upbondInitialParams: {
-    buildEnv: 'development'
-  }
-});
-
+const { chains, provider } = configureChains([chain.mainnet, chain.polygon, chain.optimism, chain.arbitrum, chain.goerli], [publicProvider()]);
 const connectors = connectorsForWallets([
   {
     groupName: "Recommended",
-    wallets: [
-      rainbowWallet({ chains }),
-      metaMaskWallet({ chains }),
-      {
-        id: "upbond",
-        name: "Upbond",
-        iconUrl: "https://i.ibb.co/wBmybLc/company-button-logo-sample.png",
-        iconBackground: "#fff",
-        createConnector: () => {
-          connector.on("message", ({ type }) => {
-            if (type === "connecting") {
-              const upbondIframe = document.getElementById("upbondIframe");
-              if (upbondIframe && upbondIframe?.style) {
-                document.getElementById("upbondIframe").style.zIndex = "999999999999999999";
-              }
-            }
-          })
-
-          const wagmiStore = JSON.parse(localStorage.getItem('wagmi.store'));
-          if (wagmiStore && wagmiStore?.state?.data?.account) {
-            connector.getAccount = () => wagmiStore?.state?.data?.account;
-          }
-
-          return {
-            connector,
-          };
-        },
-      }
-    ],
+    wallets: [metaMaskWallet({ chains }), rainbowTorusConnector({ chains })],
   },
 ]);
 const wagmiClient = createClient({
@@ -63,10 +23,40 @@ const wagmiClient = createClient({
   provider,
 });
 
+function UpbondProvider({ children }) {
+  const { connect, connectors } = useConnect();
+  const { isConnected } = useAccount();
+  const localStorageWallet = localStorage.getItem("wagmi.wallet");
+  useEffect(() => {
+    localStorage.setItem("wagmi.wallet", "");
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has("selectedAddress")) {
+      connectors.map((connector) => {
+        if (connector.id === "upbond") {
+          if (!isConnected && connector.ready) connect({ connector });
+        }
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if(localStorageWallet && localStorageWallet == '"upbond"') {
+      connectors.map((connector) => {
+        if (connector.id === "upbond") {
+          if (!isConnected && connector.ready) connect({ connector });
+        }
+      });
+    }
+  }, [localStorageWallet])
+  
+  return children
+}
+
 export default function App() {
   return (
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider chains={chains}>
+        <UpbondProvider>
         <div
           style={{
             position: "fixed",
@@ -81,7 +71,7 @@ export default function App() {
           }}
         >
           <ConnectButton />
-        </div>
+        </div></UpbondProvider>
       </RainbowKitProvider>
     </WagmiConfig>
   );
