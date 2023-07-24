@@ -51,7 +51,7 @@
     "npm": ">=6.x"
   },
   "dependencies": {
-    "@upbond/upbond-embed": "1.3.10-rc.3",
+    "@upbond/upbond-embed": "1.3.10-rc.5",
     "wagmi": "0.7.15"
   },
   "devDependencies": {
