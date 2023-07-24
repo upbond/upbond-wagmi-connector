@@ -10,7 +10,7 @@ import { useAccount, useConnect } from "wagmi";
 import { publicProvider } from "wagmi/providers/public";
 import { useEffect } from "react";
 
-const { chains, provider } = configureChains([chain.mainnet, chain.polygon, chain.optimism, chain.arbitrum, chain.goerli], [publicProvider()]);
+const { chains, provider } = configureChains([chain.mainnet, chain.polygon, chain.goerli], [publicProvider()]);
 const connectors = connectorsForWallets([
   {
     groupName: "Recommended",

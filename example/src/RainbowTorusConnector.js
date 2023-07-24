@@ -14,7 +14,7 @@ export const rainbowTorusConnector = ({ chains }) => ({
         dappRedirectUri: window.location.origin,
         modalZIndex: 9999999998,
         UpbondParams: {
-          buildEnv: "development",
+          buildEnv: "production",
         }
       }
     });
