@@ -237,10 +237,9 @@ export default class UpbondWalletConnector extends Connector {
       const selectedNetwork = upbondSupportedNetworks.find(
         (network) => network.chainId === chainId
       );
-
-      const wagmiSelectedNetwork = this.chainList.find(
-        (chain) => chain.id === chainId
-      );
+      const wagmiSelectedNetwork = Array.isArray(this.chainList)
+        ? this.chainList.find((x) => x.id === chainId)
+        : null;
       if (!wagmiSelectedNetwork) {
         throw new Error(
           `Network with chain id ${chainId} is not available, please configure your network first`
@@ -276,7 +275,9 @@ export default class UpbondWalletConnector extends Connector {
   }
 
   protected isChainUnsupported(chainId: number): boolean {
-    return !this.chainList.some((x) => x.id === chainId);
+    return Array.isArray(this.chainList)
+        ? !this.chainList.some((x) => x.id === chainId)
+        : null;
   }
 
   protected onAccountsChanged = (...accounts: unknown[]) => {
