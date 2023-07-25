@@ -1,9 +1,6 @@
 /* eslint-disable functional/no-let */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import Upbond, {
-  UPBOND_BUILD_ENV,
-  UpbondInpageProvider,
-} from '@upbond/upbond-embed';
+import Upbond, { UpbondInpageProvider } from '@upbond/upbond-embed';
 import { ethers, Signer } from 'ethers';
 import log from 'loglevel';
 import { Chain, Connector, ConnectorData } from 'wagmi';
@@ -51,33 +48,7 @@ export default class UpbondWalletConnector extends Connector {
     });
     this.isConnected = false;
     this.chainList = config.chainList;
-    this.configUpbond = {
-      buildEnv: config.options.UpbondParams.buildEnv,
-      network: this.network,
-      dappRedirectUri: config.options.dappRedirectUri,
-      whiteLabel: {
-        walletTheme: {
-          logo: 'https://i.ibb.co/L6vHB5d/company-logo-sample.png',
-          name: 'Company',
-          buttonLogo: 'https://i.ibb.co/wBmybLc/company-button-logo-sample.png',
-          isActive: true,
-          modalColor: '#fffff',
-          bgColor: '#4B68AE',
-          bgColorHover: '#214999',
-          textColor: '#f3f3f3',
-          textColorHover: '#214999',
-          theme: config.options.theme,
-          upbondLogin: {
-            globalBgColor: '#ffffff',
-            globalTextColor: '#4B68AE',
-          },
-        },
-      },
-      widgetConfig: {
-        showAfterLoggedIn: true,
-        showBeforeLoggedIn: true,
-      },
-    };
+    this.configUpbond = config.options.UpbondParams
     // set network according to chain details provided
     const chain = Array.isArray(this.chainList)
       ? this.chainList.find((x) => x.id === chainId)
