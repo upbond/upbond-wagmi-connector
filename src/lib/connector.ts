@@ -51,7 +51,7 @@ export default class UpbondWalletConnector extends Connector {
     });
     this.isConnected = false;
     this.chainList = config.chainList;
-    this.configUpbond = {
+    this.configUpbond = config.options.UpbondParams ?? {
       buildEnv: UPBOND_BUILD_ENV.DEVELOPMENT,
       network: this.network,
       dappRedirectUri: config.options.dappRedirectUri,
