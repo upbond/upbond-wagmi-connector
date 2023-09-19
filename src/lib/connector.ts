@@ -4,11 +4,14 @@ import Upbond, {
   UPBOND_BUILD_ENV,
   UpbondInpageProvider,
 } from '@upbond/upbond-embed';
-import { ethers, Signer } from 'ethers';
+//import { ethers, Signer } from 'ethers'; delete for migration
 import log from 'loglevel';
-import { Chain, Connector, ConnectorData } from 'wagmi';
+import { Chain, createWalletClient, custom  } from 'viem'
+import { Connector, ConnectorData } from 'wagmi';
 
 import { Options } from '../interfaces';
+
+import type { WalletClient } from './types'
 const IS_SERVER = typeof window === 'undefined';
 
 export default class UpbondWalletConnector extends Connector {
@@ -122,6 +125,7 @@ export default class UpbondWalletConnector extends Connector {
 
       if (this.upbondInstance.isInitialized && !this.upbondInstance.isLoggedIn)
         await this.upbondInstance.login();
+      /*
       const { provider } = this.upbondInstance;
       if (provider.on) {
         provider.on('connect', (res: any) => {
@@ -133,6 +137,7 @@ export default class UpbondWalletConnector extends Connector {
         });
         provider.on('disconnect', this.onDisconnect);
       }
+      */ //dont need this again?
       // Check if there is a user logged in
       const isAuthenticated = await this.isAuthorized();
 
@@ -143,8 +148,8 @@ export default class UpbondWalletConnector extends Connector {
       // Check if we have a chainId, in case of error just assign 0 for legacy
       // if there is a user logged in, return the user
       if (isAuthenticated) {
-        const signer = await this.getSigner();
-        const account: any = await signer.getAddress();
+        const client = await this.getWalletClient();
+        const account: any = await client.getAddresses();
         let chainId;
         try {
           chainId = await this.getChainId();
@@ -156,8 +161,7 @@ export default class UpbondWalletConnector extends Connector {
           chain: {
             id: chainId,
             unsupported: false,
-          },
-          provider,
+          }
         };
       }
     } catch (error: any) {
@@ -169,10 +173,13 @@ export default class UpbondWalletConnector extends Connector {
 
   async getAccount(): Promise<any> {
     try {
+      //const provider = new ethers.providers.Web3Provider(uProvider as any); delete for migration
+      //const signer = provider.getSigner(); delete for migration
       const uProvider = await this.getProvider();
-      const provider = new ethers.providers.Web3Provider(uProvider as any);
-      const signer = provider.getSigner();
-      const account = await signer.getAddress();
+      const client = createWalletClient({
+        transport: custom(uProvider as any)
+      })
+      const account = client.getAddresses();
       return account;
     } catch (error) {
       log.error('Error: Cannot get account:', error);
@@ -188,17 +195,20 @@ export default class UpbondWalletConnector extends Connector {
     return this.provider;
   }
 
-  async getSigner(): Promise<Signer> {
-    try {
-      const provider = new ethers.providers.Web3Provider(
-        (await this.getProvider()) as any
-      );
-      const signer = provider.getSigner();
-      return signer;
-    } catch (error) {
-      log.error('Error: Cannot get signer:', error);
-      throw error;
-    }
+  async getWalletClient({
+    chainId,
+  }: { chainId?: number } = {}): Promise<WalletClient> {
+    const [provider, account] = await Promise.all([
+      this.getProvider(),
+      this.getAccount(),
+    ])
+    const chain = this.chainList.find((x) => x.id === chainId)
+    if (!provider) throw new Error('provider is required.')
+    return createWalletClient({
+      account,
+      chain,
+      transport: custom(provider),
+    })
   }
 
   async isAuthorized() {
