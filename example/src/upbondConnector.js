@@ -1,6 +1,6 @@
 import UpbondWalletConnector from "@upbond/wagmi-connector";
 
-export const rainbowTorusConnector = ({ chains }) => ({
+export const upbondConnector = ({ chains }) => ({
   id: "upbond",
   name: "UPBOND",
   iconUrl: window.location.origin + "/logo.png",
