@@ -27,7 +27,7 @@ jobs:
         env:
           NODE_ENV: 'stg'
           TOKEN: ${{ secrets.ORG_PERSONAL_GITHUB_WRITE_PACKAGE_TOKEN }}
-          NEXT_PUBLIC_UPBOND_BUILD_ENV: 'development'
+          NEXT_PUBLIC_UPBOND_BUILD_ENV: 'production'
         run: |
           cd ./example/
           npm install --legacy-peer-deps
