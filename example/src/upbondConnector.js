@@ -8,6 +8,7 @@ export const upbondConnector = ({ chains }) => ({
   createConnector: () => {
     const connector = new UpbondWalletConnector({
       chainList: chains,
+      chains:chains,
       options: {
         chainId: 137,
         host: "matic",
@@ -15,6 +16,10 @@ export const upbondConnector = ({ chains }) => ({
         modalZIndex: 9999999998,
         UpbondParams: {
           buildEnv: "production",
+          widgetConfig: {
+            showAfterLoggedIn: false,
+            showBeforeLoggedIn: false,
+          },
         }
       }
     });
