@@ -38,8 +38,8 @@ jobs:
           args: --follow-symlinks --delete
         env:
           AWS_S3_BUCKET: 'wallet-rainbowkit-connector-prod'
-          AWS_ACCESS_KEY_ID: ${{ secrets.ORG_AWS_ADMIN_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.ORG_AWS_ADMIN_SECRET_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.ORG_DEMO_FRONT_S3_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ ORG_DEMO_FRONT_S3_SECRET_KEY }}
           AWS_REGION: 'ap-northeast-1' # optional: defaults to us-east-1
           SOURCE_DIR: './example/build' # optional: defaults to entire repository
 
@@ -49,5 +49,5 @@ jobs:
           DISTRIBUTION: 'E3PYSXRSTCAVMW'
           PATHS: '/index.html'
           AWS_REGION: 'ap-northeast-1'
-          AWS_ACCESS_KEY_ID: ${{ secrets.ORG_AWS_ADMIN_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.ORG_AWS_ADMIN_SECRET_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.ORG_DEMO_FRONT_S3_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ ORG_DEMO_FRONT_S3_SECRET_KEY }}
