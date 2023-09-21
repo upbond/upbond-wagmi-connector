@@ -26,6 +26,7 @@ jobs:
           NODE_ENV: 'prod'
           TOKEN: ${{ secrets.ORG_PERSONAL_GITHUB_WRITE_PACKAGE_TOKEN }}
           NEXT_PUBLIC_UPBOND_BUILD_ENV: 'production'
+          PROJECT_ID: '8f6f7b9fc77c3aff921ff4c981b11bc8'
         run: |
           cd ./example/
           npm install --legacy-peer-deps
