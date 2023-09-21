@@ -29,8 +29,6 @@ jobs:
           TOKEN: ${{ secrets.ORG_PERSONAL_GITHUB_WRITE_PACKAGE_TOKEN }}
           NEXT_PUBLIC_UPBOND_BUILD_ENV: 'development'
         run: |
-          npm install --legacy-peer-deps
-          DISABLE_ESLINT_PLUGIN=true npm run build
           cd ./example/
           npm install --legacy-peer-deps
           DISABLE_ESLINT_PLUGIN=true npm run build
