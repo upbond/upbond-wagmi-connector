@@ -10,25 +10,21 @@ import {
   mainnet,
   polygon,
   polygonMumbai,
-  goerli,
-  arbitrum,
-  arbitrumGoerli
+  goerli
 } from 'wagmi/chains';
-//import { Chain, createWalletClient, custom  } from 'viem'
 import { upbondConnector } from "./upbondConnector";
 import { useAccount, useConnect } from "wagmi";
 import { publicProvider } from "wagmi/providers/public";
 import { useEffect } from "react";
 
-const { chains, publicClient } = configureChains([mainnet, polygon, polygonMumbai, goerli, arbitrum, arbitrumGoerli], [publicProvider()]);
-const projectid = "105cfd88ab227367c60a8c02319df236";
+const { chains, publicClient } = configureChains([mainnet, polygon, polygonMumbai, goerli], [publicProvider()]);
 
 const connectors = connectorsForWallets([
   {
     groupName: "Recommended",
     wallets: 
-      [metaMaskWallet({ chains, projectid }), 
-      upbondConnector({ chains})
+      [metaMaskWallet({ chains }),
+      upbondConnector({ chains })
     ]
   },
 ]);
