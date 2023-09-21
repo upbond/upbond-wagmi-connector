@@ -4,7 +4,6 @@ import Upbond, {
   UPBOND_BUILD_ENV,
   UpbondInpageProvider,
 } from '@upbond/upbond-embed';
-//import { ethers, Signer } from 'ethers'; delete for migration
 import log from 'loglevel';
 import { Chain, createWalletClient, custom  } from 'viem'
 import { Connector, ConnectorData } from 'wagmi';
@@ -125,7 +124,6 @@ export default class UpbondWalletConnector extends Connector {
 
       if (this.upbondInstance.isInitialized && !this.upbondInstance.isLoggedIn)
         await this.upbondInstance.login();
-      /*
       const { provider } = this.upbondInstance;
       if (provider.on) {
         provider.on('connect', (res: any) => {
@@ -137,7 +135,6 @@ export default class UpbondWalletConnector extends Connector {
         });
         provider.on('disconnect', this.onDisconnect);
       }
-      */ //dont need this again?
       // Check if there is a user logged in
       const isAuthenticated = await this.isAuthorized();
 
@@ -173,8 +170,6 @@ export default class UpbondWalletConnector extends Connector {
 
   async getAccount(): Promise<any> {
     try {
-      //const provider = new ethers.providers.Web3Provider(uProvider as any); delete for migration
-      //const signer = provider.getSigner(); delete for migration
       const uProvider = await this.getProvider();
       const client = createWalletClient({
         transport: custom(uProvider as any)
