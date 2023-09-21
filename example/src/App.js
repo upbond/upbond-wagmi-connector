@@ -18,8 +18,8 @@ import { publicProvider } from "wagmi/providers/public";
 import { useEffect } from "react";
 
 const { chains, publicClient } = configureChains([mainnet, polygon, polygonMumbai, goerli], [publicProvider()]);
-const projectId = '8f6f7b9fc77c3aff921ff4c981b11bc8';
-//const projectId = process.env.PROJECT_ID;
+//const projectId = '8f6f7b9fc77c3aff921ff4c981b11bc8';
+const projectId = process.env.PROJECT_ID;
 
 const connectors = connectorsForWallets([
   {
