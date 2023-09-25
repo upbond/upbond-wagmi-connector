@@ -18,25 +18,28 @@ yarn add @upbond/wagmi-connector
 
 ## Getting started
 
+- This @wagmi-connector only works with @wagmi version 1.x.x
 - See running example in our [demo site](https://rainbowkit-connector-sample.upbond.io). You can refer to the demo source code in the example folder.
 - Setup your wagmi into your project, see [docs](https://wagmi.sh/core/getting-started)
 - Import upbond wagmi connector
 
 ```javascript
-import UpbondWagmiConnector from '@upbond/wagmi-connector';
-import { configureChains, createClient, useSigner, WagmiConfig } from 'wagmi';
+import UpbondWalletConnector from '@upbond/wagmi-connector';
+import { createConfig, WagmiConfig, configureChains } from 'wagmi';
+import { mainnet, polygon, polygonMumbai, goerli } from 'wagmi/chains';
+import { publicProvider } from 'wagmi/providers/public';
 // ... your imports
 ```
 
 - Configure your wagmi with `@upbond/wagmi-connector`
 
 ```javascript
-const { chains, provider } = configureChains(
-  [polygon, polygonMumbai, goerli, mainnet],
+const { chains, publicClient } = configureChains(
+  [mainnet, polygon, goerli, polygonMumbai],
   [publicProvider()]
 );
 
-const upbondConnector = new UpbondWagmiConnector({
+const upbondConnector = new UpbondWalletConnector({
   chains: chains,
   options: {
     host: 'goerli',
@@ -46,10 +49,10 @@ const upbondConnector = new UpbondWagmiConnector({
   },
 });
 
-const wagmiClient = createClient({
+const wagmiConfig = createConfig({
   autoConnect: true,
-  provider,
   connectors: [upbondConnector /** or another connectors */],
+  publicClient,
 });
 ```
 
