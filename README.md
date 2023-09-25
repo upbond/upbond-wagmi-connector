@@ -18,7 +18,7 @@ yarn add @upbond/wagmi-connector
 
 ## Getting started
 
-- this @wagmi-connector only work with @wagmi version 1.x.x
+- This @wagmi-connector only works with @wagmi version 1.x.x
 - See running example in our [demo site](https://rainbowkit-connector-sample.upbond.io). You can refer to the demo source code in the example folder.
 - Setup your wagmi into your project, see [docs](https://wagmi.sh/core/getting-started)
 - Import upbond wagmi connector
